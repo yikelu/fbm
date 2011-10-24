@@ -1,20 +1,6 @@
 import numpy as np
 
 def fbmmatrix(start=0,end=30,ntimes=7560,hurst=0.5):
-	times=np.linspace(start,end,ntimes)
-	twohurst=2.*hurst
-	Rts=lambda t, s, twoH: 0.5*(s**(twoH) + t**(twoH) - np.abs(t - s)**(twoH))
-	# lambda versus function definition doesn't change speed
-	# Rts executes 7.39 us per time
-	# This implies gamma runs over 422s for ntimes=7560
-	gamma=np.zeros([ntimes,ntimes])
-	for i in range(ntimes):
-		for j in range(ntimes):
-			gamma[i,j]=Rts(times[i],times[j],twohurst)
-	return gamma
-#	sigma=np.linalg.cholesky(gamma)
-
-def fbmmatrix2(start=0,end=30,ntimes=7560,hurst=0.5):
 	timescol=np.matrix(np.linspace(start,end,ntimes)[1:])
 	# drop the zero element, picked up this trick from R fArma
 	# matrix is not SPD otherwise
@@ -22,8 +8,7 @@ def fbmmatrix2(start=0,end=30,ntimes=7560,hurst=0.5):
 	twohurst=2.*hurst
 	gamma=0.5*(np.power(timesrow,twohurst) + np.power(timescol,twohurst)
 			- np.power(np.abs(timesrow - timescol),twohurst))
-	# this only takes 6.13 seconds, clever matrix manips
-	return gamma
+	return np.linalg.cholesky(gamma)
 
 # for size 1000, np.linalg.cholesky(gamma)=>243ms
 # implies for 7560, it should take 105s per matrix.
