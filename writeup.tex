@@ -1,0 +1,122 @@
+\documentclass[12pt]{article}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{extramarks}
+\usepackage{chngpage}
+\usepackage{soul,color}
+\usepackage{graphicx,float,wrapfig}
+\usepackage{amsmath,amsfonts,amsthm,amssymb,amstext}
+
+\newcommand{\hmwkTitle}{Fractional Brownian Motion Project}
+\newcommand{\hmwkDueDate}{}
+\newcommand{\hmwkClass}{Capstone}
+\newcommand{\hmwkClassTime}{}
+\newcommand{\hmwkClassInstructor}{Professor Gatheral}
+\newcommand{\hmwkAuthorName}{Yike Lu}
+
+\topmargin=-0.45in      %
+\evensidemargin=0in     %
+\oddsidemargin=0in      %
+\textwidth=6.5in        %
+\textheight=9.5in       %
+\headsep=0.25in         %
+
+% Setup the header and footer
+\pagestyle{fancy}                                                       %
+\lhead{\hmwkAuthorName}                                                 %
+\chead{\hmwkClass\ \hmwkTitle}  %
+\rhead{\firstxmark}                                                     %
+\lfoot{\lastxmark}                                                      %
+\cfoot{}                                                                %
+\rfoot{Page\ \thepage\ of\ \protect\pageref{LastPage}}                          %
+\renewcommand\headrulewidth{0.4pt}                                      %
+\renewcommand\footrulewidth{0.4pt}                                      %
+
+\newcommand{\ket}[1]{|#1\rangle}
+\newcommand{\bra}[1]{\langle #1 |}
+\newcommand{\braket}[2]{\langle #1 | #2 \rangle}
+\newcommand{\expectation}[1]{\langle #1 \rangle}
+\newcommand{\partials}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\derivs}[2]{\frac{d #1}{d #2}}
+\newcommand{\p}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\curl}[1]{\nabla \times \bf{#1}}
+\newcommand{\divc}[1]{\nabla \cdot \bf{#1}}
+\newcommand{\ms}[1]{\Delta #1}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\sgn}[1]{\text{sgn} #1}
+
+\theoremstyle{definition}
+\newtheorem{example}{Example}
+
+\numberwithin{equation}{section}
+\numberwithin{example}{section}
+
+\begin{document}
+\begin{section}{Introduction}
+	We seek to backtest simple technical trading rules on Fractional Brownian
+	Motions with varying $H$ exponents in order to asses the usefulness of
+	$H$ as an input to a trading system.
+\end{section}
+
+\begin{section}{Methodology}
+	We shall use Monte Carlo. The primary reason for this is that
+	we have strict control over $H$, whereas with real market data, we must rely
+	on estimators, which introduces the dimension of estimator reliability
+	and proper lookback periods for these estimators. Using Monte Carlo
+	circumvents this, as we establish $H$ a priori.
+
+	We generate $100000$ Brownian sample paths, each with $252*30=7560$
+	data points, representing $30$ trading years. To make things somewhat
+	realistic, we use	an annualized volatility $\sigma = 0.3$.
+
+	For a given Brownian sample path ${dB}_i$, we transform the path so as
+	to have	various $H$ exponents. The reason we transform the path rather than
+	generating new paths is for pathwise comparability, should we choose to
+	analyze trading strategies pathwise.
+
+	To that end, we use the following methodology (from Wikipedia)
+	\begin{subsection}{Method One}
+		One can simulate sample-paths of an fBm as any Gaussian process 
+		of known covariance. Say we aim to have simulated values at
+		$t_1, \ldots, t_n$.
+		\begin{enumerate}
+			\item Form the matrix $\Gamma=\bigl(R(t_i,\, t_j), i,j=1,\ldots,\, n\bigr)$
+				where $R(t,s)=(s^{2H}+t^{2H}-|t-s|^{2H})/2$.
+			\item Compute a square root of $\Gamma$, say $\sigma$. Use for instance
+				the Cholesky decomposition method.
+			\item Construct a vector of $n$ numbers drawn according a standard
+				Gaussian distribution.
+			\item Apply $\sigma$ to this vector yields a sample path of an fBm.
+		\end{enumerate}
+
+		Running this in python with unoptimized numpy code, generating the matrix
+		takes $422$ seconds, which translates to about $7$ minutes. Most of the
+		time is taken by the call to $R(t,s)$, however this only takes
+		$3.4 \mu s$ per call, so cannot really be sped up significantly.
+	\end{subsection}
+
+	Method two is as follows:
+	It is also known that: $B_H (t)=\int_0^t K_H(t,s) dB(s)$
+	where $B$ is a standard Brownian motion and: 
+	\begin{align}
+		K_H(t,s)&=\frac{(t-s)^{H-\frac{1}{2}}}{\Gamma(H+\frac{1}{2})} \;_2F_1
+		\left (H-\frac{1}{2}; \frac{1}{2}-H; H+\frac{1}{2}; 1-\frac{t}{s}
+		\right)
+	\end{align}
+	Where $ _2F_1$ is the Euler hypergeometric integral.
+	Say we want simulate an fbm at points $0=t_0\cdots t_n = T$.
+	\begin{enumerate}
+		\item Construct a vector of $n$ numbers drawn according a
+			standard Gaussian distribution.
+		\item Multiply it component-wise by $\sqrt{T/n}$ to obtain the increments
+			of a Brownian motion on $[0,T]$. Denote this vector by
+			$ (\delta B_1, \ldots, \delta B_n)$.
+		\item For each $ t_j$, compute:
+			\begin{align}
+				B_H (t_j)&=\frac{n}{T}\sum_{i=0}^{j-1}  \int_{t_i}^{t_{i+1}}
+				K_H(t_j, s) ds \delta B_i
+			\end{align}
+	\end{enumerate}
+\end{section}
+\end{document}
