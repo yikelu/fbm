@@ -95,28 +95,5 @@
 		time is taken by the call to $R(t,s)$, however this only takes
 		$3.4 \mu s$ per call, so cannot really be sped up significantly.
 	\end{subsection}
-
-	Method two is as follows:
-	It is also known that: $B_H (t)=\int_0^t K_H(t,s) dB(s)$
-	where $B$ is a standard Brownian motion and: 
-	\begin{align}
-		K_H(t,s)&=\frac{(t-s)^{H-\frac{1}{2}}}{\Gamma(H+\frac{1}{2})} \;_2F_1
-		\left (H-\frac{1}{2}; \frac{1}{2}-H; H+\frac{1}{2}; 1-\frac{t}{s}
-		\right)
-	\end{align}
-	Where $ _2F_1$ is the Euler hypergeometric integral.
-	Say we want simulate an fbm at points $0=t_0\cdots t_n = T$.
-	\begin{enumerate}
-		\item Construct a vector of $n$ numbers drawn according a
-			standard Gaussian distribution.
-		\item Multiply it component-wise by $\sqrt{T/n}$ to obtain the increments
-			of a Brownian motion on $[0,T]$. Denote this vector by
-			$ (\delta B_1, \ldots, \delta B_n)$.
-		\item For each $ t_j$, compute:
-			\begin{align}
-				B_H (t_j)&=\frac{n}{T}\sum_{i=0}^{j-1}  \int_{t_i}^{t_{i+1}}
-				K_H(t_j, s) ds \delta B_i
-			\end{align}
-	\end{enumerate}
 \end{section}
 \end{document}
