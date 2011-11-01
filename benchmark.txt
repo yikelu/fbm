@@ -1,0 +1,37 @@
+Matrix Size = 7560
+
+Old Python
+----------
+Create Matrix (bad) => 422s
+Create Matrix (no loops) => 6s
+Cholesky => 121s
+MMU => 83.5ms
+
+EPD
+---
+Create Matrix => 5.28
+Cholesky => 11.7s
+MMU => 58.8ms
+
+
+Matrix Size = 3780
+
+Old Python
+----------
+Cholesky => 15.5s
+MMU => 21.1ms
+
+EPD
+---
+Create Matrix => 1.31s
+Cholesky => 1.97s
+MMU => 14.6 ms
+
+
+File Size
+---------
+uncomp7560=>436MB
+z7560=>436MB
+zcomp7560=>13MB
+txt7560=>1.1GB+ (unacceptable)
+
