@@ -35,3 +35,4 @@ z7560=>436MB
 zcomp7560=>13MB
 txt7560=>1.1GB+ (unacceptable)
 
+
